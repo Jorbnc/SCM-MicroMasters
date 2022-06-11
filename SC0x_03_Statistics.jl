@@ -4,17 +4,7 @@
 using Markdown
 using InteractiveUtils
 
-# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
-macro bind(def, element)
-    quote
-        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
-        local el = $(esc(element))
-        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
-        el
-    end
-end
-
-# ╔═╡ 89497e80-afd6-11ec-39d1-ffadb6c24524
+# ╔═╡ bb8410d0-b941-11ec-3e9e-ff5dc042c03e
 begin
 	using HypertextLiteral,PlutoUI,LaTeXStrings, Formatting
 	
@@ -36,292 +26,329 @@ begin
 	"""	
 end
 
-# ╔═╡ e84c21e3-1b08-4a59-99e6-579dc2f4fef1
+# ╔═╡ 56955eab-e091-4aa8-a42b-7ee5ebb86a25
 function center_div(something)
 	@htl "<div align='center'>$something</div>"
 end;
 
-# ╔═╡ 630dcdb5-457e-426e-aa7c-c5423c5b882b
+# ╔═╡ 74b3646b-b73f-4b3c-9006-2b7fd4a01ab1
 md"""$\require{physics}$"""
 
-# ╔═╡ 600220f8-60e2-4c6a-84cd-af5c06bfb943
-TableOfContents(title="Mathematical Functions")
+# ╔═╡ 9250300b-7154-40b8-8625-f8c7d0252b2a
+TableOfContents(title="Statistics")
 
-# ╔═╡ 46e43464-09a3-4e32-9537-a0dd0df3da5b
+# ╔═╡ a9d74a5b-c228-4389-a55e-1bbbb8ae988a
 md"""
-# Simple Functions
-These are some simple mathematical models used in SCM.
-## Linear
+# Properties of Random Variables
+## Basic Definitions
+!!! warning ""
+	| | |
+	|:--|:--|
+	|$X$|Random variable that follows a probability distribution|
+	|$iid$|"Independent and Identically Distributed" (random variables)|
+	|$x_1, x_2,...$|Realizations of the random variable|
 
-$\begin{align}
-f(x) = mx + b
-\end{align}$ 
-
-**Cost functions:**\
-Of the form: $f(\text{Units}) = \text{Fixed Cost + Unitary Cost(Units)}$
-
-$\begin{aligned}
-&\begin{array}{left}
-\hline
-\text{Truckload Transportation costs} & f(d) = € 500 + \frac{€ 14.5}{d}(d) & d=\text{distance}\\
-\text{Warehousing costs} &  f(\text{cases}) = € 800 + \frac{€ 3.5}{\text{case}}(\text{cases}) \\
-\hline
-\end{array}
-\end{aligned}$
 """
 
-# ╔═╡ 14c91a8a-edf6-4a91-b625-1d90d2c28809
-let
-	T(d) = 500 + 14.5d
-	d = Vector(0:20)
-	W(c) = 800 + 3.5c
-	c = Vector(0:50)
-	fig = plot(layout=grid(1,2), size=(600, 250), framestyle=:origin, ylims=[0,1000], bottom_margin=3mm)
-	plot!(fig[1], d, T.(d), line=(2, :blue), right_margin=5mm,
-		xlabel="distance traveled", ylabel="Transportation Costs")
-	plot!(fig[2], c, W.(c), line=(2, :red), left_margin=5mm,
-		xlabel="cases stored", ylabel="Warehousing Costs")
-	center_div(fig)
-end
-
-# ╔═╡ 7d582600-904d-486c-a9e6-8b24510807e7
+# ╔═╡ a122646f-4f99-4f2d-bd79-e4f5fc998010
 md"""
-## Quadratic
+## Linearity of the Expectation
+Let $X$ be a random variable and $a,b \in \mathbb{R}$, then
 
 $\begin{align}
-f(x)=ax^2+bx+c
+E[aX + b] &= \sum_{i=1}^{n}p_x(ax_i + b) \\
+	&= a\sum_{i=1}^{n}p_ix_i + \sum_{i=1}^{n}p_ib
 \end{align}$
 
-**Profit function**\
-Assumes sales volume, and therefore revenue, are based on price, and that production levels/costs are also determined by the sales volume.
+!!! warning ""
+	$E[aX + b] = aE[X] + b$
 
-$\begin{aligned}
-&\begin{array}{left}
-\hline
-\text{Unit Sales} & S(p) = 20,000 - 80p & p=\text{price} \\
-\text{Revenue} & R(p) = (20,000 - 80p)p \\
-\text{Production Costs} &  C(p) = 500,000 + 75(20,000 - 80p) \\
-\text{Profit} &  P(p) = 20,000p - 80p^2 - 500,000 - 1,500,000 + 6000p \\
-	& P(p) = -80p^2 + 26,000p - 2,000,000 \\
-\hline
-\end{array}
-\end{aligned}$
-"""
-
-# ╔═╡ 8d6ffe41-48e0-4b13-b98e-d46da3eec4f4
-let
-	P(p) = -80p^2 + 26_000p - 2_000_000
-	p = Vector(115:210)
-	fig = plot(p, P.(p), framestyle=:origin, size=(400,250), line=(:2, :blue),
-		ylabel="Profit", xlabel="price", yformatter=y->round(y, digits=0))
-	p_max = 26000/160 # Derivation
-	scatter!([p_max],[P(p_max)], color=:black, label="")
-	annotate!(p_max, P(p_max), text("\$ ($p_max, $(P(p_max))) \$", 11, :bottom, :right))
-	center_div(fig)
-end
-
-# ╔═╡ e440e65f-61d3-4507-b13e-ecbd67aa45ab
-md"""
-**Parcel Trucking**\
-Parcel carriers combine many orders into a single shipment, so this function represents the cost of shipment for an individual order based on its weight.
-
-Let's assume that it has been modelled by the shipper based on historical data. As weight increases, it tends to taper down.
-
-$\begin{aligned}
-&\begin{array}{left}
-\hline
-\text{Cost per order} & f(w) = 33 + 0.067w - 0.00005w^2 & w=\text{weight} \\
-\hline
-\end{array}
-\end{aligned}$
-
- Of course this function would be defined only for a particular interval, say $\forall w:0<w<1000$, so we cannot get too good or even negative costs.
-"""
-
-# ╔═╡ 25905a9a-360b-4ee2-975f-4fec94602756
-let
-	f(w) = 33 + 0.067w - 0.00005w^2
-	w = Vector(0:1000)
-	fig = plot(w, f.(w), framestyle=:origin, size=(400,250), line=(:2, :blue),
-		ylabel="Cost of order", xlabel="weight", yformatter=y->round(y, digits=0))
-	w_max = 0.067/(0.00005*2)
-	scatter!([w_max], [f(w_max)])
-	annotate!(w_max, f(w_max) - 3, text("\$ ($w_max, $(round(f(w_max), digits=2))) \$", 11, :top))
-	center_div(fig)
-end
-
-# ╔═╡ 765cff9d-05da-4c86-8c1f-2d6585bac2ad
-md"""
-## Power
-$f(x)=ax^b$
-
-**Cost Absorption**\
-Let's say we have a vehicle that has a monthly fixed cost of $€ 1000$ and has a capacity of $20$ full pallets. Then each pallet absorbs the fixed cost in the following manner
-
-$\begin{aligned}
-&\begin{array}{left}\hline
-\text{Absorbed Transportation Cost} & f(p) = 1000*p^{-1} & p=\text{pallets} \\
-\hline\end{array}
-\end{aligned}$
-
-"""
-
-# ╔═╡ 0044dcd2-c7f1-4341-855e-c412e2253e5f
-let
-	f(x) = 1000x^-1
-	x = Vector(1:0.1:20)
-	fig = plot(x, f.(x), size=(400, 250), xlabel="pallets transported", ylabel="Fixed Cost 'per pallet'")
-	center_div(fig)
-end
-
-# ╔═╡ 075efb44-57cc-4746-b78d-8433d531737b
-md"""
-## Exponential
-$f(x)=ab^x$
-
-**Compound interest**\
-Behaviour of compound interest over time.
-
-$\begin{aligned}
-&\begin{array}{left}\hline
-\text{Future Value} & f(t,i) = 1000(1+i)^t & i=\text{interest}, t=\text{periods} \\
-\hline\end{array}
-\end{aligned}$
-
-"""
-
-# ╔═╡ e4e4b914-217b-4ed5-bdd6-8d24030157d9
-let
-	f(x,y) = 1000(1+y)^x
-	x = Vector(1:48)
-	fig = plot(size=(400, 250), leg=true, legend=:topleft)
-	colors = [:blue, :red, :green, :purple, :orange]
-	for (j,i) in enumerate(0.01:0.01:0.05)
-		plot!(x, f.(x,i), label="\$i=$i\$", line=colors[j], legendfont=10)
-	end
-	center_div(fig)
-end
-
-# ╔═╡ 5da33aeb-c250-4b0f-949d-cca5c96bb49b
-md"""
-## Logarithmic
-$x=b^y \iff f(x)=\log_b(x)$
-
-**Time needed for achieving a particular Future Value**\
-Let's say we want to double in value with compound interest
+and
 
 $\begin{align}
-F &= P(1 + i)^t \\
-2P &= P(1 + i)^t \\
-\ln(2) &= t \cdot \ln(1+i) \\
-t &= \frac{\ln(2)}{\ln(1+i)}
+Var[aX + b] &= E\left[(aX + b - E[aX + b])^2\right] \\
+	&= E\left[(aX + b- aE[X] - b)^2\right] \\
+	&= E[a^2(X-E[X])^2]
 \end{align}$
 
-$\begin{aligned}
-&\begin{array}{left}\hline
-\text{Time to double initial value} & f(i) = \displaystyle\frac{\ln(2)}{\ln(1 + i)} & 
-	i=\text{interest}, t=\text{periods} \\
-\hline\end{array}
-\end{aligned}$
-"""
-
-# ╔═╡ 13badf79-66a5-450f-9ef8-826aa90a23ac
-let
-	f(x) = log(2)/log(1+x)
-	x = Vector(0.01:0.005:0.2)
-	fig = plot(x, f.(x), size=(600, 250),
-		xticks=(Vector(0.01:0.01:0.2), Vector(1:20)), bottom_margin=3mm,
-		yticks=Vector(0:5:60), gridalpha=0.50,
-		xlabel="Annual Interest Rate (%)", ylabel="Years to double")
-	center_div(fig)
-end
-
-# ╔═╡ 08470b64-6f89-464d-b101-041c23ebbf13
-md"""
-## Multivariate
-
-$y=f(x_1,x_2,...,x_n)$
-
-These are functions with more than one independent variable or input.\
-**Inventory Cost**\
-One of the simplest models of total inventory cost includes
-- Total cost of items or purchasing cost
-- Ordering or set up cost
-- [Inventory] holding cost
-With the following parameters and variables
--  $c$ = unit cost
--  $D$ = total demand (mostly for a year)
--  $Q$ = order size (units/order)
--  $ct$ = cost of an individual order
--  $ce$ = cost of holding a unit over time
-
-$\begin{aligned}
-&\begin{array}{left}\hline
-\text{Total Inventory Cost} & TC(c,ct,ce,Q,D)=cD + ct\frac{D}{Q} + ce\frac{Q}{2} & 
-	 \\
-\hline\end{array}
-\end{aligned}$
+!!! warning ""
+	$Var[aX + b] = a^2Var[X]$
 
 """
 
-# ╔═╡ ac5bb82e-4667-4a53-85de-014c9009a886
+# ╔═╡ 624cbd17-40a7-4f37-bae8-558e2bb0b6dc
 md"""
-c = $(@bind c Slider(5:0.1:10, show_value=true)) \
-ct = $(@bind ct Slider(400:5:1000, show_value=true)) \
-ce = $(@bind ce Slider(5:0.1:10, show_value=true)) \
-D = $(@bind D Slider(3000:100:5000, show_value=true))
+## Expectation of a Sum
+- Let $X_1, X_2$ be i.i.d. random variables that can take values $x_i$ for $i=1...n$ and $x_j$ for $j=1...n$, respectively
+- Let $P(X_1=x_i \cap X_2 = x_j)$ the probability that both realizations $x_i$ and $x_j$ occur simultaneously
+
+$\begin{align}
+E[X_1 + X_2] &= \sum_{i=1}^{n}\sum_{j=1}^{n}P(X_1=x_i \cap X_2=x_j)(x_i+x_j) \\
+	&= \sum_{i=1}^{n}\sum_{j=1}^{n}P(X_1=x_i \cap X_2=x_j)x_i + 
+		\sum_{i=1}^{n}\sum_{j=1}^{n}P(X_1=x_i \cap X_2=x_j)x_j
+\end{align}$
+
+Note that
+-  $\displaystyle\sum_{\alpha}\sum_{\beta}\alpha\beta = \alpha_1(\beta_1+...)+\alpha_2(\beta_1+...)+...=\sum_{\alpha}\alpha\sum_{\beta}\beta$
+- Since $\quad\displaystyle\sum_{\alpha}\sum_{\beta}\alpha\beta\quad$ is a combinatorial sum, we can also write it as $\quad\displaystyle\sum_{\beta}\sum_{\alpha}\beta\alpha$
+- For independent variables $P(\alpha \cap \beta) = P(\alpha)P(\beta)$
+-  $\displaystyle\sum_{i=1}^{n}P(\alpha_i) = 1$
+(estas aclaraciones con respecto a sumatorias deberían ir en una notebook aparte)
+> Combinatorics/summation_rules.jl
+, then
+
+$\begin{align}
+E[X_1 + X_2] &= \sum_{i=1}^{n}x_i\sum_{j=1}^{n}P(X_1=x_i) P(X_2=x_j) + 
+		\sum_{j=1}^{n}x_j\sum_{i=1}^{n}P(X_1=x_i) P(X_2=x_j) \\
+	&= \sum_{i=1}^{n}x_i P(X_1=x_i) + \sum_{j=1}^{n}x_j P(X_2=x_j) \\
+	&= E[X_1] + E[X_2]
+\end{align}$
+
+This can be generalized to
+
+!!! warning ""
+	$E\left[\sum_{i=1}^{n}X_i\right]=\sum_{i=1}^{n}E[X_i]$
+
 """
 
-# ╔═╡ d9e8bf3e-94c4-43e6-b83a-a55eb4b8c466
-let
-	f(Q) = c*D + ct*(D/Q) + ce*(Q/2)
-	Q = Vector(100:5000)
-	fig = plot([Q], [f.(Q)], size=(400, 250),
-		xformatter=x->"\$ $(format(x, precision=0, commas=true)) \$",
-		yformatter=y->"\$ $(format(y, precision=2, commas=true)) \$",
-		tickfontsize=9,
-		xlabel="Order Size (Q)", ylabel="Total Inventory Cost", labelfontsize=9)
-	center_div(fig)
-end
-
-# ╔═╡ 64272bfa-a22d-4b6e-9a53-42cb446b6622
+# ╔═╡ d07d83de-0473-4f55-93cb-a5d976882418
 md"""
-# Convexity
-A function is convex in the interval $<x_1, x_2>$ if
+## Expectation of a Product
+Let $X_1, X_2$ be $iid$ random variables
 
-$f\big[\lambda x_2 + (1-\lambda)x_1\big] \leq \lambda f(x_2) + (1 - \lambda)f(x_1)$
+$\begin{align}
+E[X_1X_2] &= \sum_{i=1}^{n}\sum_{j=1}^{n}P(X_1=x_i \cap X_2=x_j)(x_ix_j) \\
+	&= \sum_{i=1}^{n}\sum_{j=1}^{n}P(X_1=x_i) P(X_2=x_j)(x_i)(x_j) \\
+	&= \sum_{i=1}^{n}P(X_1=x_i)x_i\sum_{j=1}^{n}P(X_2=x_j)x_j
+\end{align}$
 
-for all values $\lambda : 0 < \lambda < 1$
-
-**Example**\
-The function of the left is convex for the interval $<x_1, x_2>$, the function on the right is not.
+!!! warning ""
+	$E[X_1X_2] = E[X_1]E[X_2]$
 """
 
-# ╔═╡ e31edee5-693b-419d-84cb-ae08b8b4b0ec
+# ╔═╡ 9de3cfdf-c499-4d64-bc4b-6efa98537fb3
 md"""
-λ = $(@bind λ Slider(0:0.01:1, show_value=true, default=0.5))
+## Expectation of the Expectation
+$\begin{align}
+E\big[E[X]\big] &= \sum_{i=1}^{n}p_iE[X]
+\end{align}$
+
+!!! warning ""
+	$E\big[E[X]\big] = E[X]$
 """
 
-# ╔═╡ 8a27a019-38ae-4cc8-a978-f949b16ec246
-let
-	f(x) = 3x^2 - 4x + 2
-	g(x) = (x-0.7)^5 + 4(x-0.7)^2 + 1
-	functions = (f, g)
-	x = Vector(-1.2:0.05:2.2)
-	x1, x2 = -1, 2
-	x_input = λ*x2 + (1 - λ)*x1
-	fig = plot(layout=grid(1,2), size=(500, 250), yticks=[], tickfontsize=12, framestyle=:default)
-	for i in 1:2
-		plot!(fig[i], [x], [functions[i].(x)], xticks=([x1, x2], ["\$ x_1 \$","\$ x_2 \$"]))
-		scatter!(fig[i], [x_input], [functions[i](x_input)], marker=(:red, 5))
-		plot!(fig[i], [x1, x2], [functions[i](x1), functions[i](x2)], line=(:red, :dash, 1))
-	end
-	center_div(fig)
-end
-
-# ╔═╡ b403713d-7870-4a52-ac94-9a62e6e7d96a
+# ╔═╡ e7f4bb7f-1f56-4b1a-9609-2f2e60c49ce8
 md"""
-# 🔨
+## Covariance
+Defined as
+
+
+$\begin{align}
+Cov(X,Y) &= E\Big[(X-E[X])(Y-E[Y])\Big] \\
+	&= E\Big[XY - XE[Y] - E[X]Y + E[X]E[Y]\Big] \\
+	&= E[XY] - E[X]E[Y] - E[X]E[Y] + E[X]E[Y]
+\end{align}$
+
+!!! warning ""
+	$Cov(X,Y) = E[XY] - E[X]E[Y]$
+
+If $X,Y$ are $iid$ random variables, then
+
+$E[XY] = E[X]E[Y] \implies Cov(X,Y)=0$
+
+"""
+
+# ╔═╡ 027fc87f-652c-41e8-ad77-84d8a223fedd
+md"""
+## Variance of a Sum
+Let $X,Y$ be random variables, then
+
+$\begin{align}
+Var[X + Y] &= E\big[(X + Y)^2\big] - \big(E[X + Y]\big)^2 \\
+	&= E\big[X^2 + 2XY + Y^2\big] - \big(E[X] + E[Y]\big)^2 \\
+	&= E[X^2] + 2E[XY] + E[Y^2] - E^2[X] - 2E[X]E[Y] - E^2[Y] \\
+	&= Var[X] + Var[Y] + 2\big(E[XY] - E[X]E[Y]\big)
+\end{align}$
+
+!!! warning ""
+	$Var[X+Y] = Var[X] + Var[Y] + 2Cov(X,Y)$
+	
+For $iid$ random variables we can extend the property to
+
+!!! warning ""
+	$Var\left[\sum_{i=1}^{n}X_i\right] = \sum_{i=1}^{n}Var[X_i]$
+
+"""
+
+# ╔═╡ 3eec3ecc-b526-4010-a4f8-f6ee22a6c2c2
+md"""
+# Central Limit Theorem
+Let $X_1,X_2,...,X_n$ be $iid$ random variables that follow a normal distribution $N(\mu, \sigma)$, then
+
+| | |
+|:--|:--|
+|Sum of $n$ random variables|$S_n = \displaystyle\sum_{i=1}^{n}X_i$|
+|Mean of $n$ random variables|$\bar{X}_n=\displaystyle\frac{S_n}{n}$|
+
+## Sum distribution
+
+Now, if $n$ is large enough, e.g. $>30$, (sometimes > $40$ is needed), then the sum and the mean follow a normal distribution, with mean
+
+$\begin{align}
+E[S_n] &= E\left[\sum_{i=1}^{n}X_i\right] \\
+	&= \sum_{i=1}^{n}E[X_i]
+\end{align}$
+
+!!! warning ""
+	$E[S_n] = n\mu$
+
+and variance/standard deviation
+
+$\begin{align}
+Var[S_n] &= Var\left[\sum_{i=1}^{n}X_i\right] \\
+	&= \sum_{i=1}^{n}Var[X_i] \\
+
+\end{align}$
+
+!!! warning ""
+	$Var[S_n] = n\sigma^2$
+
+!!! warning ""
+	$\sigma_{S_n} = \sqrt{n}\sigma$
+"""
+
+# ╔═╡ 7314ed82-0871-493b-8af2-11be4e0b8077
+md"""
+## Mean distribution
+
+$\begin{align}
+E[\bar{X}_n] &= E\left[\frac{S_n}{n}\right] \\
+	&= \frac{1}{n}E\left[\sum_{i=1}^{n}X_i\right]
+\end{align}$
+
+!!! warning ""
+	$E[\bar{X}_n] = \mu$
+
+$\begin{align}
+Var[\bar{X}_n] &= E\left[\left(\frac{S_n}{n}\right)^2\right] - \left(E\left[\frac{S_n}{n}\right]\right)^2 \\
+	&= \frac{1}{n^2}\left(E[(S_n)^2] - (E[S_n])^2\right) \\
+	&= \frac{1}{n^2}Var[S_n] \\
+	&= \frac{1}{n^2}n\sigma^2 
+\end{align}$
+
+!!! warning ""
+	$Var[\bar{X}_n] = \frac{\sigma^2}{n}$
+
+!!! warning ""
+	$\sigma_{\bar{X}} = \frac{\sigma}{\sqrt{n}}$ 
+"""
+
+# ╔═╡ 4898cf5b-50d2-4dc6-9c3d-6195c5ba21a3
+md"""
+# Sampling & Confidence Intervals
+
+!!! warning ""
+	| | | |
+	|:--|:--|:--|
+	|$\bar{X}$|Random variable that follows a probability distribution|e.g Theoretical sample mean |
+	|$\bar{x}, \bar{x_1}...$|Realizations of the previous random variable| e.g. Observed sample mean|
+
+## Known variance
+- Let $X_1,...,X_n$ be a random sample from a normal distribution $\sim N(\mu, \sigma)$
+- Then $\bar{X}$ is also a random variable and (if $n$ is large enough, see Central Limit Theorem) $\bar{X} \sim N\left(\mu, \sigma_{\bar{x}}=\frac{\sigma}{\sqrt{n}}\right)$
+
+- Note that if we standardize $\bar{X}$, i.e. $\displaystyle Z= \frac{\bar{X}-\mu}{\sigma/\sqrt{n}}$ we get $Z \sim N(0,1)$.
+- Choose $-z$ and $z$ such that $P(-z<Z<z)=p$ for a $Z \sim N(0,1)$, e.g. 
+  +  $p=0.90 \implies -z \approx 1.64, z \approx 1.64$
+  +  $p=0.95 \implies -z \approx 1.96, z \approx 1.96$
+
+Now, note that
+
+$\begin{align}
+p &= P\left( -z < \frac{\bar{X}-\mu}{\sigma/\sqrt{n}} < z\right) \\
+	&= P\left(-z\frac{\sigma}{\sqrt{n}} < \bar{X} - \mu < z\frac{\sigma}{\sqrt{n}} \right) \\
+	&= P\left(- \bar{X} -z\frac{\sigma}{\sqrt{n}}  < - \mu < -\bar{X} + z\frac{\sigma}{\sqrt{n}} \right) \\
+	&= P\left(\bar{X} - z\frac{\sigma}{\sqrt{n}} < \mu < \bar{X} + z\frac{\sigma}{\sqrt{n}} \right)
+\end{align}$
+
+In some cases we will have $n<30$ sample sizes, so we won't be calculating intervals using a normal distribution, but a t-distribution. So let's change the exclusive notation $z$ (or $t$) to $c$, so both cases are implied. Then, we've found that 
+
+!!! warning ""
+	The interval
+	
+	$\left[\bar{X} - c\frac{\sigma}{\sqrt{n}},  \bar{X} + c\frac{\sigma}{\sqrt{n}} \right]$
+	
+	covers $\mu$ with a probability $p$.
+
+**Example:**
+
+In the quality control study of a particular product, a sample of $n=23$ items is collected. Previous studies show that a correct manufacturing process have $\sigma=0.1$. Compute a $95\%$ confidence interval for the true mean ($\mu$) knowing that the sample mean is $\bar{x}=72.886$
+
+- Interval: $\left[72.886 - 1.96\frac{0.1}{\sqrt{23}}, 72.886 + 1.96\frac{0.1}{\sqrt{23}}\right] = [72.845, 72.927]$
+
+"""
+
+# ╔═╡ a72ad4c1-1c89-475e-9638-0188bd19a006
+md"""
+## Unknown variance
+If the population variance (e.g. distribution variance) is unknown, we have to estimate the bounds of the intervald. Let $s$ be the sample standard deviation, then
+
+!!! warning ""
+	The interval
+	
+	$\left[\bar{X} - c\frac{s}{\sqrt{n}},  \bar{X} + c\frac{s}{\sqrt{n}} \right]$
+	
+	estimates $\mu$ with a probability $p$.
+
+"""
+
+# ╔═╡ 1cf38e77-ce5e-457e-a8e9-cd44a544011b
+md"""
+## Interpretation
+- Typically, sampling is executed just once and a confidence level $p=1-\alpha$ is reported
+- If we repeat the sampling procedure $100$ times, these random intervals will capture the true population mean, on average, $p(100)$ times out of $100$.
+"""
+
+# ╔═╡ 134ea9f0-bd47-4d23-8dac-f5ac4c00c02c
+md"""
+# 🔨 Hypothesis Testing
+## Intro
+Hypothesis testing is used when we want to test if a measurement is significantly different, smaller or greater than a hypothesized value.
+- Let $X_T$ be a random variable.
+- Let $x_T$ be a realization/observation of that random variable.
+- We want to test whether $x_T$ differs from a hypothetical value $h$
+- Let $H_0$ be the null hypothesis. Let $H_1$ be the alternative hypothesis.
+
+Then we have the following cases
+
+| | |
+|:--|:--|
+|Shorter|$\begin{align}H_0: x_T \geq h \\ H_1: x_T < h \end{align}$|
+| | |
+|Different|$\begin{align}H_0: x_T = h \\ H_1: x_T \neq h \end{align}$|
+| | |
+|Greater|$\begin{align}H_0: x_T \leq h \\ H_1: x_T > h \end{align}$|
+
+**Common Procedure**
+
+| | | |
+|:--|:--|:--|
+|1|Test statistic selection|Sum, average, error, etc.|
+|2|Determine whether is a 1 or 2 tailed test|? $\begin{cases}= & 2 \text{ tail} \\ > or < & 1 \text{ tail} \end{cases}$|
+|3|Pick a significance level & critical value|c = $\begin{cases}CDF^{-1}(1-\alpha) & 2 \text{ tail} \\ CDF^{-1}(1-\frac{\alpha}{2}) & 1 \text{ tail} \end{cases}$|
+|4| Formulate Null & Alternative hypotheses|
+|5| Calculate the test statistic| $\begin{cases}\text{An interval} & 2 \text{ tail} \\ \text{A point} & 1 \text{ tail} \end{cases}$
+|6| Comparison
+"""
+
+# ╔═╡ afc8d58c-65c8-4945-b52d-b99c6e91c719
+md"""
+# 🔨 Multiple Random Variables
+"""
+
+# ╔═╡ 988ecb55-6d61-4502-960a-afec6fdf1b36
+md"""
+# 🔨 Regression
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -338,7 +365,7 @@ PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Formatting = "~0.4.2"
 HypertextLiteral = "~0.9.3"
 LaTeXStrings = "~1.3.0"
-Plots = "~1.27.4"
+Plots = "~1.27.5"
 PlutoUI = "~0.7.38"
 """
 
@@ -749,9 +776,9 @@ uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[deps.LogExpFunctions]]
 deps = ["ChainRulesCore", "ChangesOfVariables", "DocStringExtensions", "InverseFunctions", "IrrationalConstants", "LinearAlgebra"]
-git-tree-sha1 = "58f25e56b706f95125dcb796f39e1fb01d913a71"
+git-tree-sha1 = "a7e100b068a6cbead98b9f4e5c8b488934b7aea0"
 uuid = "2ab3a3ac-af41-5b50-aa03-7779005ae688"
-version = "0.3.10"
+version = "0.3.11"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
@@ -851,10 +878,10 @@ deps = ["Artifacts", "Dates", "Downloads", "LibGit2", "Libdl", "Logging", "Markd
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 
 [[deps.PlotThemes]]
-deps = ["PlotUtils", "Requires", "Statistics"]
-git-tree-sha1 = "a3a964ce9dc7898193536002a6dd892b1b5a6f1d"
+deps = ["PlotUtils", "Statistics"]
+git-tree-sha1 = "8162b2f8547bc23876edd0c5181b27702ae58dce"
 uuid = "ccf2f8ad-2431-5c83-bf29-c5338b663b6a"
-version = "2.0.1"
+version = "3.0.0"
 
 [[deps.PlotUtils]]
 deps = ["ColorSchemes", "Colors", "Dates", "Printf", "Random", "Reexport", "Statistics"]
@@ -864,9 +891,9 @@ version = "1.2.0"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "GeometryBasics", "JSON", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "UUIDs", "UnicodeFun", "Unzip"]
-git-tree-sha1 = "edec0846433f1c1941032385588fd57380b62b59"
+git-tree-sha1 = "88ee01b02fba3c771ac4dce0dfc4ecf0cb6fb772"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.27.4"
+version = "1.27.5"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "Markdown", "Random", "Reexport", "UUIDs"]
@@ -1252,28 +1279,24 @@ version = "0.9.1+5"
 """
 
 # ╔═╡ Cell order:
-# ╟─89497e80-afd6-11ec-39d1-ffadb6c24524
-# ╟─e84c21e3-1b08-4a59-99e6-579dc2f4fef1
-# ╟─630dcdb5-457e-426e-aa7c-c5423c5b882b
-# ╠═600220f8-60e2-4c6a-84cd-af5c06bfb943
-# ╟─46e43464-09a3-4e32-9537-a0dd0df3da5b
-# ╟─14c91a8a-edf6-4a91-b625-1d90d2c28809
-# ╟─7d582600-904d-486c-a9e6-8b24510807e7
-# ╟─8d6ffe41-48e0-4b13-b98e-d46da3eec4f4
-# ╟─e440e65f-61d3-4507-b13e-ecbd67aa45ab
-# ╟─25905a9a-360b-4ee2-975f-4fec94602756
-# ╟─765cff9d-05da-4c86-8c1f-2d6585bac2ad
-# ╟─0044dcd2-c7f1-4341-855e-c412e2253e5f
-# ╟─075efb44-57cc-4746-b78d-8433d531737b
-# ╟─e4e4b914-217b-4ed5-bdd6-8d24030157d9
-# ╟─5da33aeb-c250-4b0f-949d-cca5c96bb49b
-# ╟─13badf79-66a5-450f-9ef8-826aa90a23ac
-# ╟─08470b64-6f89-464d-b101-041c23ebbf13
-# ╟─ac5bb82e-4667-4a53-85de-014c9009a886
-# ╟─d9e8bf3e-94c4-43e6-b83a-a55eb4b8c466
-# ╟─64272bfa-a22d-4b6e-9a53-42cb446b6622
-# ╟─e31edee5-693b-419d-84cb-ae08b8b4b0ec
-# ╟─8a27a019-38ae-4cc8-a978-f949b16ec246
-# ╟─b403713d-7870-4a52-ac94-9a62e6e7d96a
+# ╟─bb8410d0-b941-11ec-3e9e-ff5dc042c03e
+# ╟─56955eab-e091-4aa8-a42b-7ee5ebb86a25
+# ╟─74b3646b-b73f-4b3c-9006-2b7fd4a01ab1
+# ╠═9250300b-7154-40b8-8625-f8c7d0252b2a
+# ╟─a9d74a5b-c228-4389-a55e-1bbbb8ae988a
+# ╟─a122646f-4f99-4f2d-bd79-e4f5fc998010
+# ╟─624cbd17-40a7-4f37-bae8-558e2bb0b6dc
+# ╟─d07d83de-0473-4f55-93cb-a5d976882418
+# ╟─9de3cfdf-c499-4d64-bc4b-6efa98537fb3
+# ╟─e7f4bb7f-1f56-4b1a-9609-2f2e60c49ce8
+# ╟─027fc87f-652c-41e8-ad77-84d8a223fedd
+# ╟─3eec3ecc-b526-4010-a4f8-f6ee22a6c2c2
+# ╟─7314ed82-0871-493b-8af2-11be4e0b8077
+# ╟─4898cf5b-50d2-4dc6-9c3d-6195c5ba21a3
+# ╟─a72ad4c1-1c89-475e-9638-0188bd19a006
+# ╟─1cf38e77-ce5e-457e-a8e9-cd44a544011b
+# ╟─134ea9f0-bd47-4d23-8dac-f5ac4c00c02c
+# ╟─afc8d58c-65c8-4945-b52d-b99c6e91c719
+# ╟─988ecb55-6d61-4502-960a-afec6fdf1b36
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

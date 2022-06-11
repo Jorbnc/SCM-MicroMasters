@@ -4,17 +4,7 @@
 using Markdown
 using InteractiveUtils
 
-# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
-macro bind(def, element)
-    quote
-        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
-        local el = $(esc(element))
-        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
-        el
-    end
-end
-
-# ╔═╡ 89497e80-afd6-11ec-39d1-ffadb6c24524
+# ╔═╡ 4984b9a9-875e-40ec-9c82-b5772e3da57b
 begin
 	using HypertextLiteral,PlutoUI,LaTeXStrings, Formatting
 	
@@ -36,292 +26,429 @@ begin
 	"""	
 end
 
-# ╔═╡ e84c21e3-1b08-4a59-99e6-579dc2f4fef1
+# ╔═╡ 19e77e7f-5c0a-4866-9914-1e262c3710b2
 function center_div(something)
 	@htl "<div align='center'>$something</div>"
 end;
 
-# ╔═╡ 630dcdb5-457e-426e-aa7c-c5423c5b882b
+# ╔═╡ 10b24963-fc31-47b1-89a0-a2d66023721a
 md"""$\require{physics}$"""
 
-# ╔═╡ 600220f8-60e2-4c6a-84cd-af5c06bfb943
-TableOfContents(title="Mathematical Functions")
+# ╔═╡ 7cd90cb4-c997-4896-aafc-4acc4c25e550
+TableOfContents(title="Probability")
 
-# ╔═╡ 46e43464-09a3-4e32-9537-a0dd0df3da5b
+# ╔═╡ a3836bc7-1239-4e5b-be6b-5c528a6257f2
 md"""
-# Simple Functions
-These are some simple mathematical models used in SCM.
-## Linear
+# Probability Fundamentals
+## Basic Concepts
+Probability refers to the chance that an event will occur. Mathematically, it can be a number between $0$ and $1$, where $0$ means that the event won't happen and $1$ means a certainty. The closer to $1$, the more likely the event will occur.
 
-$\begin{align}
-f(x) = mx + b
-\end{align}$ 
+Notation:
 
-**Cost functions:**\
-Of the form: $f(\text{Units}) = \text{Fixed Cost + Unitary Cost(Units)}$
+!!! warning ""
+	 | | |
+	:--|:--|:--|
+	$\Omega$ | Sample Space | Set of all possible outcomes |
+	$\omega$ | Sample Point | A particular outocome in a sample space |
+	$P[\omega]$ | Probabilty of a sample point |  |
+	$A$ | Event such that $A \subseteq \Omega$ | A subset (single point or a collection) |
+	$P[A] = \displaystyle \sum_{\omega \in A}P[\omega]$ | Probability of event $A$ | |
+	$P[A] = \displaystyle \frac{\abs{A}}{\abs{\Omega}}$ | Probability of event $A$ if $\Omega$ is a uniform space$^{*}$ |$\abs{A}$ is the size of the set| 
+	$P[A']=1-P[A]$ | Probability that the event $A$ will not occur | $A'$ is the complement of $A$
 
-$\begin{aligned}
-&\begin{array}{left}
-\hline
-\text{Truckload Transportation costs} & f(d) = € 500 + \frac{€ 14.5}{d}(d) & d=\text{distance}\\
-\text{Warehousing costs} &  f(\text{cases}) = € 800 + \frac{€ 3.5}{\text{case}}(\text{cases}) \\
-\hline
-\end{array}
-\end{aligned}$
-"""
-
-# ╔═╡ 14c91a8a-edf6-4a91-b625-1d90d2c28809
-let
-	T(d) = 500 + 14.5d
-	d = Vector(0:20)
-	W(c) = 800 + 3.5c
-	c = Vector(0:50)
-	fig = plot(layout=grid(1,2), size=(600, 250), framestyle=:origin, ylims=[0,1000], bottom_margin=3mm)
-	plot!(fig[1], d, T.(d), line=(2, :blue), right_margin=5mm,
-		xlabel="distance traveled", ylabel="Transportation Costs")
-	plot!(fig[2], c, W.(c), line=(2, :red), left_margin=5mm,
-		xlabel="cases stored", ylabel="Warehousing Costs")
-	center_div(fig)
-end
-
-# ╔═╡ 7d582600-904d-486c-a9e6-8b24510807e7
-md"""
-## Quadratic
-
-$\begin{align}
-f(x)=ax^2+bx+c
-\end{align}$
-
-**Profit function**\
-Assumes sales volume, and therefore revenue, are based on price, and that production levels/costs are also determined by the sales volume.
-
-$\begin{aligned}
-&\begin{array}{left}
-\hline
-\text{Unit Sales} & S(p) = 20,000 - 80p & p=\text{price} \\
-\text{Revenue} & R(p) = (20,000 - 80p)p \\
-\text{Production Costs} &  C(p) = 500,000 + 75(20,000 - 80p) \\
-\text{Profit} &  P(p) = 20,000p - 80p^2 - 500,000 - 1,500,000 + 6000p \\
-	& P(p) = -80p^2 + 26,000p - 2,000,000 \\
-\hline
-\end{array}
-\end{aligned}$
-"""
-
-# ╔═╡ 8d6ffe41-48e0-4b13-b98e-d46da3eec4f4
-let
-	P(p) = -80p^2 + 26_000p - 2_000_000
-	p = Vector(115:210)
-	fig = plot(p, P.(p), framestyle=:origin, size=(400,250), line=(:2, :blue),
-		ylabel="Profit", xlabel="price", yformatter=y->round(y, digits=0))
-	p_max = 26000/160 # Derivation
-	scatter!([p_max],[P(p_max)], color=:black, label="")
-	annotate!(p_max, P(p_max), text("\$ ($p_max, $(P(p_max))) \$", 11, :bottom, :right))
-	center_div(fig)
-end
-
-# ╔═╡ e440e65f-61d3-4507-b13e-ecbd67aa45ab
-md"""
-**Parcel Trucking**\
-Parcel carriers combine many orders into a single shipment, so this function represents the cost of shipment for an individual order based on its weight.
-
-Let's assume that it has been modelled by the shipper based on historical data. As weight increases, it tends to taper down.
-
-$\begin{aligned}
-&\begin{array}{left}
-\hline
-\text{Cost per order} & f(w) = 33 + 0.067w - 0.00005w^2 & w=\text{weight} \\
-\hline
-\end{array}
-\end{aligned}$
-
- Of course this function would be defined only for a particular interval, say $\forall w:0<w<1000$, so we cannot get too good or even negative costs.
-"""
-
-# ╔═╡ 25905a9a-360b-4ee2-975f-4fec94602756
-let
-	f(w) = 33 + 0.067w - 0.00005w^2
-	w = Vector(0:1000)
-	fig = plot(w, f.(w), framestyle=:origin, size=(400,250), line=(:2, :blue),
-		ylabel="Cost of order", xlabel="weight", yformatter=y->round(y, digits=0))
-	w_max = 0.067/(0.00005*2)
-	scatter!([w_max], [f(w_max)])
-	annotate!(w_max, f(w_max) - 3, text("\$ ($w_max, $(round(f(w_max), digits=2))) \$", 11, :top))
-	center_div(fig)
-end
-
-# ╔═╡ 765cff9d-05da-4c86-8c1f-2d6585bac2ad
-md"""
-## Power
-$f(x)=ax^b$
-
-**Cost Absorption**\
-Let's say we have a vehicle that has a monthly fixed cost of $€ 1000$ and has a capacity of $20$ full pallets. Then each pallet absorbs the fixed cost in the following manner
-
-$\begin{aligned}
-&\begin{array}{left}\hline
-\text{Absorbed Transportation Cost} & f(p) = 1000*p^{-1} & p=\text{pallets} \\
-\hline\end{array}
-\end{aligned}$
-
-"""
-
-# ╔═╡ 0044dcd2-c7f1-4341-855e-c412e2253e5f
-let
-	f(x) = 1000x^-1
-	x = Vector(1:0.1:20)
-	fig = plot(x, f.(x), size=(400, 250), xlabel="pallets transported", ylabel="Fixed Cost 'per pallet'")
-	center_div(fig)
-end
-
-# ╔═╡ 075efb44-57cc-4746-b78d-8433d531737b
-md"""
-## Exponential
-$f(x)=ab^x$
-
-**Compound interest**\
-Behaviour of compound interest over time.
-
-$\begin{aligned}
-&\begin{array}{left}\hline
-\text{Future Value} & f(t,i) = 1000(1+i)^t & i=\text{interest}, t=\text{periods} \\
-\hline\end{array}
-\end{aligned}$
-
-"""
-
-# ╔═╡ e4e4b914-217b-4ed5-bdd6-8d24030157d9
-let
-	f(x,y) = 1000(1+y)^x
-	x = Vector(1:48)
-	fig = plot(size=(400, 250), leg=true, legend=:topleft)
-	colors = [:blue, :red, :green, :purple, :orange]
-	for (j,i) in enumerate(0.01:0.01:0.05)
-		plot!(x, f.(x,i), label="\$i=$i\$", line=colors[j], legendfont=10)
-	end
-	center_div(fig)
-end
-
-# ╔═╡ 5da33aeb-c250-4b0f-949d-cca5c96bb49b
-md"""
-## Logarithmic
-$x=b^y \iff f(x)=\log_b(x)$
-
-**Time needed for achieving a particular Future Value**\
-Let's say we want to double in value with compound interest
-
-$\begin{align}
-F &= P(1 + i)^t \\
-2P &= P(1 + i)^t \\
-\ln(2) &= t \cdot \ln(1+i) \\
-t &= \frac{\ln(2)}{\ln(1+i)}
-\end{align}$
-
-$\begin{aligned}
-&\begin{array}{left}\hline
-\text{Time to double initial value} & f(i) = \displaystyle\frac{\ln(2)}{\ln(1 + i)} & 
-	i=\text{interest}, t=\text{periods} \\
-\hline\end{array}
-\end{aligned}$
-"""
-
-# ╔═╡ 13badf79-66a5-450f-9ef8-826aa90a23ac
-let
-	f(x) = log(2)/log(1+x)
-	x = Vector(0.01:0.005:0.2)
-	fig = plot(x, f.(x), size=(600, 250),
-		xticks=(Vector(0.01:0.01:0.2), Vector(1:20)), bottom_margin=3mm,
-		yticks=Vector(0:5:60), gridalpha=0.50,
-		xlabel="Annual Interest Rate (%)", ylabel="Years to double")
-	center_div(fig)
-end
-
-# ╔═╡ 08470b64-6f89-464d-b101-041c23ebbf13
-md"""
-## Multivariate
-
-$y=f(x_1,x_2,...,x_n)$
-
-These are functions with more than one independent variable or input.\
-**Inventory Cost**\
-One of the simplest models of total inventory cost includes
-- Total cost of items or purchasing cost
-- Ordering or set up cost
-- [Inventory] holding cost
-With the following parameters and variables
--  $c$ = unit cost
--  $D$ = total demand (mostly for a year)
--  $Q$ = order size (units/order)
--  $ct$ = cost of an individual order
--  $ce$ = cost of holding a unit over time
-
-$\begin{aligned}
-&\begin{array}{left}\hline
-\text{Total Inventory Cost} & TC(c,ct,ce,Q,D)=cD + ct\frac{D}{Q} + ce\frac{Q}{2} & 
-	 \\
-\hline\end{array}
-\end{aligned}$
-
-"""
-
-# ╔═╡ ac5bb82e-4667-4a53-85de-014c9009a886
-md"""
-c = $(@bind c Slider(5:0.1:10, show_value=true)) \
-ct = $(@bind ct Slider(400:5:1000, show_value=true)) \
-ce = $(@bind ce Slider(5:0.1:10, show_value=true)) \
-D = $(@bind D Slider(3000:100:5000, show_value=true))
-"""
-
-# ╔═╡ d9e8bf3e-94c4-43e6-b83a-a55eb4b8c466
-let
-	f(Q) = c*D + ct*(D/Q) + ce*(Q/2)
-	Q = Vector(100:5000)
-	fig = plot([Q], [f.(Q)], size=(400, 250),
-		xformatter=x->"\$ $(format(x, precision=0, commas=true)) \$",
-		yformatter=y->"\$ $(format(y, precision=2, commas=true)) \$",
-		tickfontsize=9,
-		xlabel="Order Size (Q)", ylabel="Total Inventory Cost", labelfontsize=9)
-	center_div(fig)
-end
-
-# ╔═╡ 64272bfa-a22d-4b6e-9a53-42cb446b6622
-md"""
-# Convexity
-A function is convex in the interval $<x_1, x_2>$ if
-
-$f\big[\lambda x_2 + (1-\lambda)x_1\big] \leq \lambda f(x_2) + (1 - \lambda)f(x_1)$
-
-for all values $\lambda : 0 < \lambda < 1$
+*A uniform space is a sample space where each point has the same probability of happening $\frac{1}{|\Omega|}$
 
 **Example**\
-The function of the left is convex for the interval $<x_1, x_2>$, the function on the right is not.
+When rolling 2 fair dice, the probability of getting a sum equal to $7$ can be analyzed in the following manner
+-  $\Omega = \{ (1,1),(1,2),(1,3),...,(6,6) \} \implies |\Omega| = 6 \times 6 = 36$
+-  $P[\omega] = \frac{1}{36}$ 
+-  $A = \{(1,6),(2,5),(3,4),(4,3),(5,2),(6,1)\} \implies |A| = 6$
+-  $\displaystyle P[A] = \frac{6}{36} = \frac{1}{6} \quad$ or $\displaystyle \quad P[A] = \sum_{i=1}^{6}P[\omega] = \frac{6}{36} = \frac{1}{6}$
+The probability of not getting a sum equal to $7$ is therefore $P[A'] = 1 - \frac{1}{6} = \frac{5}{6}$.
+
+**Example: Birthday Paradox**\
+Given that there are $n$ people in a room, what is the probability that $2$ of them have the same birthday?
+- Each person has $365$ possibilities for his/her birthday
+- This means that there are $365^n$ possible combinations for $n$ people $\longrightarrow |\Omega| = 365^n$
+- There are $365 \times 364$ ways for $2$ people to have different birthdays
+- Therefore, the probability we're looking for is given by $\displaystyle 1 - \frac{365 \times 364}{365^2}$
+In general, we'll see that for $n$ people, the probability of $n$ of them having the same birthday is
+
+$1 - \frac{\text{Permutation}(365,n)}{365^n} = 1 - \frac{365!}{(365-n)!\cdot365^n}$
 """
 
-# ╔═╡ e31edee5-693b-419d-84cb-ae08b8b4b0ec
-md"""
-λ = $(@bind λ Slider(0:0.01:1, show_value=true, default=0.5))
-"""
-
-# ╔═╡ 8a27a019-38ae-4cc8-a978-f949b16ec246
+# ╔═╡ 4e5c3ba0-f04e-4dd8-9a59-1ad5dfe4e2e6
 let
-	f(x) = 3x^2 - 4x + 2
-	g(x) = (x-0.7)^5 + 4(x-0.7)^2 + 1
-	functions = (f, g)
-	x = Vector(-1.2:0.05:2.2)
-	x1, x2 = -1, 2
-	x_input = λ*x2 + (1 - λ)*x1
-	fig = plot(layout=grid(1,2), size=(500, 250), yticks=[], tickfontsize=12, framestyle=:default)
-	for i in 1:2
-		plot!(fig[i], [x], [functions[i].(x)], xticks=([x1, x2], ["\$ x_1 \$","\$ x_2 \$"]))
-		scatter!(fig[i], [x_input], [functions[i](x_input)], marker=(:red, 5))
-		plot!(fig[i], [x1, x2], [functions[i](x1), functions[i](x2)], line=(:red, :dash, 1))
-	end
+	f(n) = 1 - binomial(big(365),big(n))*factorial(big(n))/big(365)^n
+	n = Vector(1:365)
+	fig = plot(n, f.(n), size=(600, 250),
+		xticks=(Vector(0:20:360),Vector(0:20:360)),
+		yticks=Vector(0:0.1:1),
+		gridalpha=0.5)
 	center_div(fig)
 end
 
-# ╔═╡ b403713d-7870-4a52-ac94-9a62e6e7d96a
+# ╔═╡ da0a08d0-43ef-4bb4-9718-0158619e6472
 md"""
-# 🔨
+## Union and Intersection of events
+Let $E_1$ and $E_2$ be two events, then $E_1 \cup E_2$ represents the outcomes that are either in $E_1$ or $E_2$, or in both. On the other hand, $E_1 \cap E_2$ represents the outcomes that are in both $E_1$ and $E_2$.
+
+More generally
+
+!!! warning ""
+	 | |
+	:--|:--|
+	 $\displaystyle\bigcup_{i=1}^{n}E_i$ | Outcomes that are in at least one of the events |
+	 $\displaystyle\bigcap_{i=1}^{n}E_i$ | Outcomes that are in all of the events |
+
+Now consider the complement of the first expression
+
+!!! warning ""
+	$\left(\bigcup_{i=1}^{n}E_i\right)' = \bigcap_{i=1}^{n}E_i'$
+
+To prove this, note that the outcome of interest is not contained in any of the events $E_i$, nor in a particular complement, since the complement of one single event could be another one from the union. Therefore, it must be contained in the intersection of each complement. $\blacksquare$
+
+Similarly, note that
+
+!!! warning ""
+	$\left(\bigcap_{i=1}^{n}E_i\right)' = \bigcup_{i=1}^{n}E_i'$
+
+To prove it, we use the first expression
+
+$\begin{align}
+\left(\bigcup_{i=1}^{n}E_i'\right)' &= \bigcap_{i=1}^{n}(E_i')' \\
+\left(\bigcup_{i=1}^{n}E_i'\right)' &= \bigcap_{i=1}^{n}E_i \\
+\bigcup_{i=1}^{n}E_i'  &= \left(\bigcap_{i=1}^{n}E_i\right)' \quad \blacksquare
+\end{align}$
+"""
+
+# ╔═╡ c16ae242-0a89-4931-aecb-3b6dc09c0e9b
+md"""
+## Axioms & Consequences
+!!! warning ""
+	Let $E$ be an event, then
+
+	I) $0 \leq P[E] \leq 1$
+	
+	II)	$P[\Omega] = 1$
+	
+	For mutually exclusive events, i.e. events for which $\bigcap_{i=1}^n E_{i}=\varnothing$, we have
+	
+	III) $\displaystyle P\left[\bigcup_{i=1}^{n}E_{i}\right] = \sum_{i=1}^{n}P[E_i]$
+
+Let $E,F$ be events, then from the axioms it follows that
+!!! warning ""
+	$E \subset F \implies P[E] \leq P[F]$
+- Since $E \subset F$, we can express $F$ as $F = E \cup E' \cap F$ (because the complement of $E$ could include an outermost set, e.g. $G: F \subset G$)
+- Because $E$ and $E' \cap F$ are mutually exclusive, from axiom III it follows that $P[F] = P[E] + P[E' \cap F]$ 
+- Since $P[E' \cap F] \geq 0$, then $P[E] \leq P[F] \quad\blacksquare$
+
+!!! warning ""
+	$P[E \cup F] = P[E] + P[F] - P[E\cap F]$
+- If events are not independent, $P[E\cap F]$ must be removed to avoid redundance
+- If events are independent, the proof is already given lines above (III: when $P[E\cap F] = 0$) $\quad\blacksquare$
+
+**Example**\
+A customer goes into a shop and with probability $0.4$ she will buy product $1$ ($E_1$), with probability $0.3$ she will buy product $2$ ($E_2$), with probability $0.2$ she will buy both ($E_1 \cap E_2$). What is the probability that she will buy neither product?
+
+- The probability that she will buy at least one product is $P[E_1 \cup E_2] = P[E_1] + P[E_2] - P[E_1 \cap E_2] = 0.5$
+- Therefore, the probability that she will buy neither book is: $1 - 0.5 = 0.5$
+
+**Example**\
+The number of weekly sales for a particular item has the following (historical) probabilities
+
+Event | Probability | Cumulative Probability |
+|:--:|:--:|:--:|
+ x=1 | 0.14 | 0.14 |
+ x=2 | 0.22 | 0.36 |
+ x=3 | 0.30 | 0.66 |
+ x=4 | 0.22 | 0.88 |
+ x=5 | 0.12 | 1.00 |
+
+-  Let $E_1:$ Sales are greater or equal than 4 
+-  Let $E_2:$ Sales are an odd number, then
+-  $P[E_1 \cap E_2] = P\big[(x\geq 4] \land (x=1,3,5)\big] =  P[x=5] = 0.12$
+-  $P[E_1 \cup E_2] = P\big[(x\geq 4] \lor (x=1,3,5)\big] =  P[x=1,3,4,5] = 0.14 + 0.30 + 0.22 + 0.12 = 0.78$
+The last probability was calculated adding individual probabilities, but it can also be obtained by
+-  $P(E_1 \cup E_2) = P(E_1) + P(E_2) - P(E_1 \cap E_2) = 0.34 + 0.56 - 0.12 = 0.78$
+
+"""
+
+# ╔═╡ 10a11e88-75d4-400f-a16e-baf5571123a3
+md"""
+## Conditional Probability
+The probability that event $A$ happens, given that event $B$ also happens and both events share sample points, is
+
+!!! warning ""
+	$\begin{align}
+	P[A|B] &= \frac{P[A \cap B]}{P[B]} 
+	\end{align}$
+
+- Let $\omega$ be a sample point such that $\omega \in B$
+- The probability that $\omega$ happens, given that $B$ has happened, is $\displaystyle P[\omega|B] = \frac{P[\omega]}{P[B]}$
+- Notice that we are considering $B$ as the new sample space, i.e. $\Omega$. This is called *scaling* or *normalizing* probabilities.
+- Since $A$ and $B$ must share sample points, these can be viewed as $\omega \in (A \cap B)$, therefore
+$P[A|B] = \sum_{\omega \in (A \cap B)}\frac{P[\omega]}{P[B]} = \frac{P[A \cap B]}{P[B]}$
+
+Also, notice that it follows
+!!! warning ""
+	$P[A \cap B] = P[A|B] \cdot P[B]$
+
+On the other hand, if events are **independent**, then 
+!!! warning ""
+	$P[A|B] = P[A]$
+
+and
+!!! warning ""
+	$P[A \cap B] = P[A|B] \cdot P[B] = P[A] \cdot P[B]$ 
+
+**Bins**\
+If we throw $3$ balls into $3$ bins, what's the probability that the first container will be empty? 
+
+* First, let's see why the probability of $1$ bin being empty is not $\frac{1}{3}$
+
+  + If we throw $1$ ball, then $2$ bins will be empty, and there are $\binom{3}{2}=3$ ways for this to happen
+  + Namely: `(1st, 2nd), (2nd, 3rd), (1st, 3rd)`
+  + Notice that each bin appears $2$ times for a $|\Omega|=3$, and this means a probability of $\frac{2}{3}$
+* So, to simplify things, let's consider that any bin being empty is equivalent to the other 2 being filled. The probability of this equivalent event is $\frac{2}{3}$ for each toss.
+* Therefore, for $3$ tosses ($3$ balls), we have $(\frac{2}{3})^3 = \frac{8}{27}$
+
+What is the probability of the same event given that the second bin is empty?
+- We already know that the probability of any bin (e.g. the second one) being empty for 3 tosses is $P[B] = \frac{8}{27}$
+- Now for the first bin to be empty as well (i.e. now both events, $A$ and $B$, happen), it means that only the third woulb be filled. For 3 tosses we have a probability of $P[A \cap B] = (\frac{1}{3})^3$
+- Finally, we have $P[A|B] = \frac{1/27}{8/27} = \frac{1}{8}$
+"""
+
+# ╔═╡ ffe87867-d061-41a7-9b4b-9214acdec7fa
+md"""
+**Clinical Trials**\
+A pharmaceutical trial has the following positive and negative results on affected and healthy people, as percentages
+
+ | + Result | - Result|
+|:--|:--:|:--:|
+Affected | $0.90$ | $0.10$|
+Healthy | $0.20$ | $0.80$|
+
+Assuming that the incidence of the disease is $5\%$. When a random person is tested and the test comes up positive, what is the probability that the person actually has the condition?
+-  $5\%$ of the people have the disease $\implies 95\%$ are healthy
+  + True Positives = $(0.90)(0.05)=0.045$
+  + False positives = $(0.20)(0.95)=0.19$
+  + True Negatives = $(0.80)(0.95)=0.76$
+  + False Negatives = $(0.10)(0.05)=0.005$
+  + Total: TP + FP + TN + FN = $1$
+- Tested positive $(B) \longrightarrow P[B] = TP + FP =0.235$
+- Tested positive and has the condition $(A \cap B) \longrightarrow P[A \cap B] = TP = 0.045$
+-  $P[A|B]=\frac{TP}{TP + FP} = \frac{0.045}{0.235}\approx 0.19$
+"""
+
+# ╔═╡ 36453c0d-ca48-4993-b431-7dbeebcb286e
+md"""
+# Central Tendency
+## Mean & Expected Value
+
+Let's say we have a collection of $m$ values, then the simple arithmetic mean is
+
+!!! warning ""
+	$\begin{align}
+	\text{mean} = \frac{v_1 + v_2 + ... + v_m}{m} = \frac{\displaystyle\sum_{j=1}^{m}v_j}{m}
+	\end{align}$
+
+Now suppose some values are repeated.
+- Let $x_i$ be one unique value and $n$ the number of different, unique values. 
+- Let $f_i$ be the frequency of ocurrence for each $x_i$. 
+- Let $X$ be a random variable that can take the value $x_i$ (informal introduction of a random variable)
+
+Then the expected value for $X$ is
+
+$\begin{align}
+E[X] &= \left(\frac{f_1}{m}\right)x_1 + \left(\frac{f_2}{m}\right)x_2 + ... + 
+	\left(\frac{f_n}{m}\right)x_n
+\end{align}$
+
+If each $\frac{f_i}{m}$ is the probability $p_i$ of ocurrence for each $x_i$, then the expected value can also be expressed as
+
+!!! warning ""
+	$E[X] = \sum_{i=1}^{n}p_ix_i$
+	where:
+	-  $x_i, \;i=1...n$ are all the possible values that $X$ can take
+	-  $p_i$ is the probability $P[X=x_i]$
+
+This summation formula for $E[X]$ applies for a sample space with discrete values (e.g. dices, cards, etc.), i.e. $\Omega$ is countable or finite. If $\Omega$ is uncountable (e.g. an interval for weight, size, etc.), then we have
+
+!!! danger ""
+	$E[X] = \int\limits_{-\infty}^{\infty}xf(x)dx$
+	where:
+	-  $x$ is a value in the interval of interest
+	-  $f(x)dx \approx P[x \leq X \leq x + dx]$ for small $dx$ 
+
+## Median & Mode
+**Median**\
+The middle value of a collection. It separates the higher half from the lower half
+!!! warning ""
+	$\begin{align}
+	\text{median} = 
+	\begin{cases}
+	x_{(n+1)/2} & \text{if } n \text{ is odd}\\[7pt]
+	\displaystyle\frac{x_{n/2} + x_{(n/2)+1}}{2} & \text{if } n \text{ is even}
+	\end{cases}
+	\end{align}$
+
+**Mode**\
+The most repeated value or values (multimodal collection/data).
+"""
+
+# ╔═╡ 511fbec7-da4d-4506-b71f-14aa8c511194
+md"""
+# Spread
+## Range, Percentiles, Quartiles
+
+!!! warning ""
+	 | | |
+	|:--|:--|:--|
+	|Range | Difference between the maximum and mimimun values$^1$ | $\max()-\min()$|
+	|Percentile |Value below which a $k$ percentage of other values in the sorted data fall$^{2}$ ||
+	|Quartiles |Special percentiles for 25%, 50%, 75%|Q1, Q2, Q3|
+	|Interquartile Range|Difference between 75th and 25th percentiles |Q3-Q1 |
+
+1) Gotta watch out for outliers. 
+2) Can be inclusive or exclusive.
+"""
+
+# ╔═╡ 690f6bdf-e4b4-4d55-9b06-d80d9d2be3ca
+md"""
+## 🔨 Boxplots
+"""
+
+# ╔═╡ 953ac635-4820-4e50-b7be-f9706258e21a
+md"""
+## Variance, Standard Deviation
+**Variance**\
+It's an aggregated, averaged measure of the squared difference between $v_j$ values and their arithmetic mean $\mu$
+
+$\sigma^2 = \frac{\displaystyle\sum_{j=1}^{m}(v_j-\mu)^2}{m}$
+
+!!! asd ""
+	Note that the units are squared and therefore are different from those of the mean.
+
+We can also express it using the notation with unique values and probability of occurrence. It's derived in a similar way to the expected value (i.e. each squared difference between unique values $x_i$ and $\mu$ will have an associated probability of ocurrence)
+
+!!! warning ""
+	$\sigma^2 = Var[X] = \sum_{i=1}^{n}p_i(x_i - \mu)^2$
+
+	can also be expressed as an expectation
+
+	$Var[X] = E\Big[\big(X-E[X]\big)^2\Big]$
+
+**Standard Deviation**\
+It's the square root of the variance
+
+!!! warning ""
+	$\sigma = \sqrt{\sigma^2}$
+
+!!! asd ""
+	The units are the same as those of the mean.
+
+"""
+
+# ╔═╡ a7c50b23-34ac-42ff-bbfb-19a4542f7b10
+md"""
+## Variance: Alternative Formula
+$\begin{align}
+Var[X] &= \sum_{i=1}^{n}p_i(x_i - \mu)^2 \\
+	&= \sum_{i=1}^{n}p_i(x_i^2 -2x_i\mu + \mu^2) \\
+	&= \sum_{i=1}^{n}p_ix_i^2 - 2\mu\sum_{i=1}^{n}p_ix_i + \mu^2\sum_{i=1}^{n}p_i \\
+	&= \sum_{i=1}^{n}p_ix_i^2 -2\mu^2 + \mu^2 \\
+	&= \sum_{i=1}^{n}p_ix_i^2 -\mu^2
+\end{align}$
+
+!!! warning ""
+	$Var[X] = E[X^2] - E^2[X]$
+"""
+
+# ╔═╡ dbdf2f82-9492-4503-b485-ec193d1e9796
+md"""
+## CoV, MD, MAD
+
+**Coefficient of Variation**\
+Standardized, relative (to the mean) measure of dispersion, expressed as a percetange
+
+!!! warning ""
+	$CoV=\frac{\sigma}{|\mu|}$
+
+**MD, MAD**\
+Similar to the standard deviation, but without squaring the differences
+!!! warning ""
+	 | | | |
+	|:--|:--|:--|:--|
+	|Mean Deviation| $MD=\displaystyle\frac{\displaystyle\sum_{i=1}^{n}x_i - \mu}{n}$ | Mean Absolute Deviation | $MAD=\displaystyle\frac{\displaystyle\sum_{i=1}^{n}\abs{x_i - \mu}}{n}$|
+"""
+
+# ╔═╡ 3fb1c0e7-129f-44db-a1ce-08e7721af544
+md"""
+# 🔨 Probability Distributions
+## PMF, PDF, CDF
+"""
+
+# ╔═╡ 710738d4-8087-413f-935f-9391ed7aa0a5
+md"""
+# 🔨 Discrete Probability Distributions
+## Discrete Uniform
+!!! warning ""
+	| | |
+	|:--|:--|
+	|Discrete Uniform Distribution|$U(a,b)$|
+	|Minimum value|$a$|
+	|Maximum value|$b$|
+	|Number of possible, unique values|$n=b-a+1$|
+	|PMF|$P[X=x] = f(x:a,b) = \begin{cases}\frac{1}{n} & \text{for a} \leq x \leq b \\ 0 & \text{otherwise}\end{cases}$|
+	|Expected value or mean|$\displaystyle\frac{a+b}{2}$|
+	|Median|$\displaystyle\frac{a+b}{2}$|
+	|Mode|N/A (each value is equally likely)|
+	|Variance|$\displaystyle\frac{n^2-1}{12} = \frac{(b-a+1)^2-1}{12}$|
+
+**Proof for variance formula**\
+For any interval $[a,b] = [x_1,x_n]$
+
+$\begin{align}
+Var[X] &= E[X^2] - E^2[X] \\
+	&=\frac{1}{n}\left(\sum_{i=1}^{n}x_i^2\right) - \left(\frac{a+b}{2}\right)^2 \\
+	&=\frac{1}{n}\left(\sum_{i=0}^{n-1}(a+i)^2\right) - \left(\frac{a^2+2ab+b^2}{4}\right) \\
+	&=\frac{1}{n}\left(\sum_{i=0}^{n-1}a^2 + \sum_{i=0}^{n-1}2ai + \sum_{i=0}^{n-1}i^2 \right) - \left(\frac{a^2+2ab+b^2}{4}\right) \\ 
+	&= \frac{1}{n}\left(na^2 + 2a\frac{(n-1)n}{2} + \frac{(n-1)(n)(2n-1)}{6}\right) - \left(\frac{a^2+2ab+b^2}{4}\right) \\
+	&= a^2 + a(n-1) + \frac{2n^2 -3n + 1}{6} - \left(\frac{a^2+2ab+b^2}{4}\right) \\
+	&\text{Pero } n = b-a+1 \\
+	&= a^2 + a(b-a) + \frac{2(b-a+1)^2 -3(b-a+1) + 1}{6} - \left(\frac{a^2+2ab+b^2}{4}\right) \\
+	&=ab + \frac{2a^2-4ab-a+2b^2+b}{6} - \left(\frac{a^2+2ab+b^2}{4}\right) \\
+	&= \frac{2a^2+2ab-a+2b^2+b}{6} - \frac{a^2+2ab+b^2}{4} \\
+	&= \frac{4a^2 + 4ab - 2a + 4b^2 +2b - 3a^2 - 6ab - 3b^2}{12} = \frac{a^2 + b^2 - 2ab -2a +2b}{12} \\
+	&= \frac{(b -a +1)^2 - 1}{12} \quad\blacksquare
+\end{align}$
+"""
+
+# ╔═╡ 979f6aa0-dd49-4275-bc3a-d7f64a643a7c
+md"""
+## Poisson
+"""
+
+# ╔═╡ 54616d25-8914-40b9-b65f-6513ea64b0cd
+md"""
+# 🔨 Continuous Probability Distributions
+## Continuous Uniform
+"""
+
+# ╔═╡ c0904adc-b477-4689-b71e-6a82a2ba93e1
+md"""
+## Normal
+"""
+
+# ╔═╡ 7e71dfa0-ae4b-4dd6-ad33-c0376d4b61b4
+md"""
+## Triangular
+"""
+
+# ╔═╡ 21b50870-8c95-4292-84b6-f126a5126adb
+md"""
+# References
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -1252,28 +1379,28 @@ version = "0.9.1+5"
 """
 
 # ╔═╡ Cell order:
-# ╟─89497e80-afd6-11ec-39d1-ffadb6c24524
-# ╟─e84c21e3-1b08-4a59-99e6-579dc2f4fef1
-# ╟─630dcdb5-457e-426e-aa7c-c5423c5b882b
-# ╠═600220f8-60e2-4c6a-84cd-af5c06bfb943
-# ╟─46e43464-09a3-4e32-9537-a0dd0df3da5b
-# ╟─14c91a8a-edf6-4a91-b625-1d90d2c28809
-# ╟─7d582600-904d-486c-a9e6-8b24510807e7
-# ╟─8d6ffe41-48e0-4b13-b98e-d46da3eec4f4
-# ╟─e440e65f-61d3-4507-b13e-ecbd67aa45ab
-# ╟─25905a9a-360b-4ee2-975f-4fec94602756
-# ╟─765cff9d-05da-4c86-8c1f-2d6585bac2ad
-# ╟─0044dcd2-c7f1-4341-855e-c412e2253e5f
-# ╟─075efb44-57cc-4746-b78d-8433d531737b
-# ╟─e4e4b914-217b-4ed5-bdd6-8d24030157d9
-# ╟─5da33aeb-c250-4b0f-949d-cca5c96bb49b
-# ╟─13badf79-66a5-450f-9ef8-826aa90a23ac
-# ╟─08470b64-6f89-464d-b101-041c23ebbf13
-# ╟─ac5bb82e-4667-4a53-85de-014c9009a886
-# ╟─d9e8bf3e-94c4-43e6-b83a-a55eb4b8c466
-# ╟─64272bfa-a22d-4b6e-9a53-42cb446b6622
-# ╟─e31edee5-693b-419d-84cb-ae08b8b4b0ec
-# ╟─8a27a019-38ae-4cc8-a978-f949b16ec246
-# ╟─b403713d-7870-4a52-ac94-9a62e6e7d96a
+# ╟─4984b9a9-875e-40ec-9c82-b5772e3da57b
+# ╟─19e77e7f-5c0a-4866-9914-1e262c3710b2
+# ╟─10b24963-fc31-47b1-89a0-a2d66023721a
+# ╠═7cd90cb4-c997-4896-aafc-4acc4c25e550
+# ╟─a3836bc7-1239-4e5b-be6b-5c528a6257f2
+# ╟─4e5c3ba0-f04e-4dd8-9a59-1ad5dfe4e2e6
+# ╟─da0a08d0-43ef-4bb4-9718-0158619e6472
+# ╟─c16ae242-0a89-4931-aecb-3b6dc09c0e9b
+# ╟─10a11e88-75d4-400f-a16e-baf5571123a3
+# ╟─ffe87867-d061-41a7-9b4b-9214acdec7fa
+# ╟─36453c0d-ca48-4993-b431-7dbeebcb286e
+# ╟─511fbec7-da4d-4506-b71f-14aa8c511194
+# ╟─690f6bdf-e4b4-4d55-9b06-d80d9d2be3ca
+# ╟─953ac635-4820-4e50-b7be-f9706258e21a
+# ╟─a7c50b23-34ac-42ff-bbfb-19a4542f7b10
+# ╟─dbdf2f82-9492-4503-b485-ec193d1e9796
+# ╟─3fb1c0e7-129f-44db-a1ce-08e7721af544
+# ╟─710738d4-8087-413f-935f-9391ed7aa0a5
+# ╟─979f6aa0-dd49-4275-bc3a-d7f64a643a7c
+# ╟─54616d25-8914-40b9-b65f-6513ea64b0cd
+# ╟─c0904adc-b477-4689-b71e-6a82a2ba93e1
+# ╟─7e71dfa0-ae4b-4dd6-ad33-c0376d4b61b4
+# ╟─21b50870-8c95-4292-84b6-f126a5126adb
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
